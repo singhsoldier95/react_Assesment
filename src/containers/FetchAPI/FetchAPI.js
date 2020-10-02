@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import StudentCard from '../../components/studentCard/StudentCard';
-
+import './FetchAPI.css'
 export class FetchAPI extends Component {
     constructor(props) {
         super(props)
         this.state = {
-             students : []
+            students : []
         }
     }
     
@@ -24,6 +24,7 @@ export class FetchAPI extends Component {
         const API_URL = "https://www.hatchways.io/api/assessment/students";
         const response = await fetch(API_URL,{method : 'GET'});
         const JsonData = await response.json();
+        
         const listOfStudents = (JsonData.students).map((data, index) => {
             const average = this.gradeAverage(data.grades);
             return <StudentCard key = {data.id}
@@ -38,13 +39,12 @@ export class FetchAPI extends Component {
         this.setState({ students: listOfStudents });
     }
     componentDidMount(){
-        
         this.fetchData();
     }
 
     render() {
         return (
-            <div>
+            <div className='content'>
                 {this.state.students}
             </div>
         )
