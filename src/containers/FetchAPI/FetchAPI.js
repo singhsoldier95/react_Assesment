@@ -1,11 +1,19 @@
 import React, { Component } from 'react'
+import InputComponent from '../../components/InputComponent/InputComponent';
 import StudentCard from '../../components/studentCard/StudentCard';
-import './FetchAPI.css'
+import './FetchAPI.css';
+
+
 export class FetchAPI extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            students : []
+            students : [],
+            studentData : [],
+            studentNames : [],
+            searchName : '',
+            found : false,
+            Result : ''
         }
     }
     
@@ -36,16 +44,60 @@ export class FetchAPI extends Component {
                 average = {average}
             />
         });
-        this.setState({ students: listOfStudents });
+
+        const studentNames = (JsonData.students).map((data, index) => {
+            return data.firstName;
+        });
+        this.setState({ 
+            students: listOfStudents,
+            studentNames : studentNames,
+            studentData : JsonData.students,
+        });
     }
     componentDidMount(){
         this.fetchData();
     }
 
+    changeHandler = (event) => {
+        let search = event.target.value;
+        this.setState({ searchName: event.target.value });
+        this.dynamicSearch(search)
+    }
+
+    dynamicSearch = (search) => {
+        const searchResult = this.state.studentData.filter(data => {
+            if((data.firstName.includes(search) || data.lastName.includes(search))){
+                this.setState({ found : !this.state.found });
+                return data;  
+            }
+        });
+        this.setState({ Result : searchResult  });
+    }
+
     render() {
+        let content = '';
+        if(!this.state.found){
+            content = this.state.students;
+        }else{
+            content = this.state.Result.map(data => {
+                const average = this.gradeAverage(data.grades);
+                return <StudentCard key = {data.id}
+                pic = {data.pic} 
+                fullName = {data.firstName + ' ' + data.lastName}
+                email = {data.email}
+                company = {data.company}
+                skill = {data.skill}
+                average = {average}
+            />
+            });
+        }
         return (
             <div className='content'>
-                {this.state.students}
+                <InputComponent 
+                    value = {this.state.searchName} 
+                    changeHandler = {this.changeHandler}
+                    />
+                {content}
             </div>
         )
     }
